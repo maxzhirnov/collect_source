@@ -1,0 +1,21 @@
+# Mac OS system files
+.DS_Store
+Desktop.ini
+._*
+Thumbs.db
+.Spotlight-V100
+.Trashes
+
+# Project specific
+project_source.txt
+
+# IDE files
+.idea/
+.vscode/
+
+# Go specific
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
