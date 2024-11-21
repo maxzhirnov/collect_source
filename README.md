@@ -79,4 +79,3 @@ MIT License - feel free to use and modify as you need.
 ## Author
 
 Maksim Zhirnov
-- [GitHub](https://github.com/maxzhirnov)# collect_source
