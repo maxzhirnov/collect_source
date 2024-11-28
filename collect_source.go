@@ -13,11 +13,37 @@ const (
 	thisFileName = "collect_source.go"
 )
 
-// Конфигурация расширений файлов для парсинга
-var fileExtensions = []string{
-	".go",
-	".html",
-	// Можно добавить другие расширения
+var (
+	// Конфигурация расширений файлов для парсинга
+	fileExtensions = []string{
+		".go",
+		".html",
+		".sql",
+		".svelte",
+		".js",
+		// Можно добавить другие расширения
+	}
+
+	// Директории для исключения
+	excludedDirs = []string{
+		".git",
+		"vendor",
+		"node_modules",
+		"dist",
+		"build",
+		"coverage",
+		".next",
+	}
+)
+
+// Helper function to check if directory should be excluded
+func shouldExcludeDir(name string) bool {
+	for _, dir := range excludedDirs {
+		if name == dir {
+			return true
+		}
+	}
+	return false
 }
 
 func main() {
@@ -32,6 +58,7 @@ func main() {
 	fmt.Fprintf(f, "Project Source Code Export\n")
 	fmt.Fprintf(f, "Generated: %s\n", time.Now().Format("2006-01-02 15:04:05"))
 	fmt.Fprintf(f, "Parsing extensions: %v\n", fileExtensions)
+	fmt.Fprintf(f, "Excluded directories: %v\n", excludedDirs)
 	fmt.Fprintf(f, "Working Directory: %s\n", getCurrentDir())
 	fmt.Fprintf(f, "\n"+strings.Repeat("-", 80)+"\n\n")
 
@@ -50,6 +77,13 @@ func main() {
 			return err
 		}
 
+		// Check for excluded directories
+		for _, dir := range excludedDirs {
+			if strings.Contains(path, dir+string(os.PathSeparator)) {
+				return filepath.SkipDir
+			}
+		}
+
 		// Пропускаем директории
 		if info.IsDir() {
 			return nil
@@ -57,11 +91,6 @@ func main() {
 
 		// Пропускаем файл самого скрипта
 		if strings.HasSuffix(path, thisFileName) {
-			return nil
-		}
-
-		// Пропускаем файлы в .git и vendor директориях
-		if strings.Contains(path, ".git/") || strings.Contains(path, "vendor/") {
 			return nil
 		}
 
@@ -112,8 +141,8 @@ func printProjectTree(f *os.File, path string, level int, isLast map[string]bool
 	}
 
 	for i, file := range files {
-		// Пропускаем .git и vendor директории
-		if file.Name() == ".git" || file.Name() == "vendor" {
+		// Skip excluded directories
+		if shouldExcludeDir(file.Name()) {
 			continue
 		}
 
